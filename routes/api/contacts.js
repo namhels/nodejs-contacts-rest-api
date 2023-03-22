@@ -1,102 +1,23 @@
 const express = require("express");
-const Joi = require("joi");
 
-const contacts = require("../../models/contacts");
+const { contacts: ctrl } = require("../../controllers");
 
-const { createError } = require("../../helpers");
+const { ctrlWrapper } = require("../../helpers");
+
+const { validation } = require("../../middlewares");
+
+const { joiSchema } = require("../../schemas/contacts");
 
 const router = express.Router();
 
-const joiSchema = Joi.object({
-  name: Joi.string().required(),
-  email: Joi.string().required(),
-  phone: Joi.string().required(),
-});
+router.get("/", ctrlWrapper(ctrl.getAll));
 
-router.get("/", async (req, res, next) => {
-  try {
-    const result = await contacts.listContacts();
-    res.json(result);
-  } catch (error) {
-    next(error);
+router.get("/:id", ctrlWrapper(ctrl.getById));
 
-    // const {status = 500, message = "Server error"} = error;
-    // res.status(status).json({
-    //     message
-    // });
-  }
-});
+router.post("/", validation(joiSchema), ctrlWrapper(ctrl.add));
 
-router.get("/:contactId", async (req, res, next) => {
-  try {
-    const { contactId } = req.params;
-    const result = await contacts.getContactById(contactId);
-    if (!result) {
-      throw createError(404);
+router.put("/:id", validation(joiSchema), ctrlWrapper(ctrl.updateById));
 
-      // const error = new Error("Not found");
-      // error.status = 404;
-      // throw error;
-
-      // res.status(404).json({
-      //     message: "Not found"
-      // });
-      // return;
-    }
-    res.json(result);
-  } catch (error) {
-    next(error);
-  }
-});
-
-router.post("/", async (req, res, next) => {
-  try {
-    const { error } = joiSchema.validate(req.body);
-    if (error) {
-      throw createError(400, error.message);
-    }
-    const result = await contacts.addContact(req.body);
-    res.status(201).json(result);
-  } catch (error) {
-    next(error);
-  }
-});
-
-router.put("/:contactId", async (req, res, next) => {
-  try {
-    const { error } = joiSchema.validate(req.body);
-    if (error) {
-      throw createError(400, error.message);
-    }
-    const { contactId } = req.params;
-    const result = await contacts.updateContact(contactId, req.body);
-    if (!result) {
-      throw createError(404);
-    }
-    res.json(result);
-  } catch (error) {
-    next(error);
-  }
-});
-
-router.delete("/:contactId", async (req, res, next) => {
-  try {
-    const { contactId } = req.params;
-    const result = await contacts.removeContact(contactId);
-    if (!result) {
-      throw createError(404);
-    }
-
-    // res.status(204).json({
-    //     "message": "book deleted"
-    // })
-
-    res.json({
-      message: "book deleted",
-    });
-  } catch (error) {
-    next(error);
-  }
-});
+router.delete("/:id", ctrlWrapper(ctrl.removeById));
 
 module.exports = router;

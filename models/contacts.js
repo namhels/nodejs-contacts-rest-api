@@ -13,9 +13,9 @@ const listContacts = async () => {
   return JSON.parse(data);
 };
 
-const getContactById = async (contactId) => {
+const getContactById = async (id) => {
   const contacts = await listContacts();
-  const result = contacts.find((item) => item.id === contactId);
+  const result = contacts.find((item) => item.id === id);
   if (!result) {
     return null;
   }
@@ -33,20 +33,20 @@ const addContact = async (body) => {
   return newContact;
 };
 
-const updateContact = async (contactId, body) => {
+const updateContact = async (id, body) => {
   const contacts = await listContacts();
-  const idx = contacts.findIndex((item) => item.id === contactId);
+  const idx = contacts.findIndex((item) => item.id === id);
   if (idx === -1) {
     return null;
   }
-  contacts[idx] = { contactId, ...body };
+  contacts[idx] = { id, ...body };
   await updateContacts(contacts);
   return contacts[idx];
 };
 
-const removeContact = async (contactId) => {
+const removeContact = async (id) => {
   const contacts = await listContacts();
-  const idx = contacts.findIndex((item) => item.id === contactId);
+  const idx = contacts.findIndex((item) => item.id === id);
   if (idx === -1) {
     return null;
   }
