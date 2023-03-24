@@ -8,15 +8,13 @@ const contactSchema = Schema(
   {
     name: {
       type: String,
-      required: true,
+      required: [true, "Set name for contact"],
     },
     email: {
       type: String,
-      required: true,
     },
     phone: {
       type: String,
-      required: true,
     },
     favorite: {
       type: Boolean,
@@ -49,7 +47,7 @@ const addContact = Joi.object({
 });
 
 const updateFavorite = Joi.object({
-  favorite: Joi.boolean().required(),
+  favorite: Joi.boolean().required("missing field favorite"),
 });
 
 const schemas = {
